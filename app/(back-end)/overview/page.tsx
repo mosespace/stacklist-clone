@@ -5,7 +5,8 @@ import { getStacks } from '@/actions/stacks';
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
-  const stacksData = await getStacks();
+  const apiKey = user?.apiKeys[0].key;
+  const stacksData = await getStacks(apiKey as string);
 
   if (!user) {
     redirect('/login');

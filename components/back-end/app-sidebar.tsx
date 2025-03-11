@@ -46,8 +46,8 @@ export const data = [
     roles: ['USER'],
   },
   {
-    title: 'Shared',
-    href: '/overview/shared',
+    title: 'Stacks',
+    href: '/stacks',
     icon: AlignVerticalJustifyEnd,
     roles: ['ADMIN', 'USER'],
   },
@@ -110,7 +110,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
       <SidebarContent>
         <nav className={cn('flex space-y-1 lg:space-y-2 flex-col')} {...props}>
           {data.map((item) => {
-            const segments = pathname.split('/stacks').filter(Boolean);
+            const segments = pathname.split('/overview').filter(Boolean);
 
             // Skip rendering if user's role is not in item's roles
             if (!item.roles.includes(user?.role)) {
@@ -118,13 +118,13 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
             }
 
             const isActive = (href: string) => {
-              if (href === '/stacks') {
-                return pathname === '/stacks';
+              if (href === '/overview') {
+                return pathname === '/overview';
               }
               if (pathname === href) return true;
               if (!segments[0]) return false;
 
-              const hrefWithoutDashboard = href.replace('/stacks', '');
+              const hrefWithoutDashboard = href.replace('/overview', '');
               return segments[0].startsWith(hrefWithoutDashboard);
             };
 

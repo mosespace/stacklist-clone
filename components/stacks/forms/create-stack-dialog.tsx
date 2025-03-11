@@ -1,5 +1,6 @@
 'use client';
 
+import { createStack, updateStack } from '@/actions/stacks';
 import CustomTextArea from '@/components/back-end/re-usable-inputs/custom-text-area';
 import CustomText from '@/components/back-end/re-usable-inputs/text-reusable';
 import { Icons } from '@/components/icons';
@@ -15,7 +16,7 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from '@mosespace/toast';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -29,67 +30,74 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-interface CreateStackDialogProps {
+interface StackDialogProps {
   open: boolean;
   user: any;
+  stack?: any; // Make stack optional
   onOpenChange: (open: boolean) => void;
 }
 
 export function CreateStackDialog({
   open,
   user,
+  stack,
   onOpenChange,
-}: CreateStackDialogProps) {
+}: StackDialogProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [isPublic, setIsPublic] = useState(false);
-
+  const [isPublic, setIsPublic] = useState(stack ? stack.isPublic : false);
   const {
     reset,
     control,
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
-      description: '',
+      ...stack,
       isPublic: false,
     },
   });
 
   async function onSubmit(data: FormData) {
     setIsLoading(true);
-
     data.isPublic = isPublic;
+
     try {
-      const userId = user?.id;
-      // console.log('Data:', user);
+      const apiKey = user?.apiKeys[0].key;
 
-      const response = await fetch('/api/stacks', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-user-id': userId,
-        },
-        body: JSON.stringify(data),
-      });
+      let response;
 
-      const result = await response.json();
+      if (stack) {
+        // Update existing stack
+        response = await updateStack(apiKey, stack.id, data);
 
-      if (result.status === 201) {
-        toast.success('Stack created!', result.message);
-        reset();
-
-        onOpenChange(false);
-
-        router.refresh();
+        if (response.status === 200) {
+          toast.success('Stack updated!', response.message);
+          onOpenChange(false);
+        } else {
+          toast.error('Stack update failed!', `${response.message}`);
+        }
       } else {
-        toast.error('Stack creation failed!', `${result.message}`);
+        // Create new stack
+        response = await createStack(apiKey, data);
+
+        if (response.status === 201) {
+          toast.success('Stack created!', response.message);
+          reset();
+          onOpenChange(false);
+        } else {
+          toast.error('Stack creation failed!', `${response.message}`);
+        }
       }
+
+      // Refresh the stacks list
+      router.refresh();
     } catch (error) {
-      toast.error('Error', 'Failed to create stack. Please try again.');
+      const action = stack ? 'update' : 'create';
+      toast.error('Error', `Failed to ${action} stack. Please try again.`);
     } finally {
       setIsLoading(false);
     }
@@ -99,10 +107,13 @@ export function CreateStackDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Create New Stack</DialogTitle>
+          <DialogTitle>
+            {stack ? 'Update Stack' : 'Create New Stack'}
+          </DialogTitle>
           <DialogDescription>
-            Create a new stack to compare products across different e-commerce
-            platforms.
+            {stack
+              ? 'Update your stack details.'
+              : 'Create a new stack to compare products across different e-commerce platforms.'}
           </DialogDescription>
         </DialogHeader>
         <div>
@@ -151,7 +162,7 @@ export function CreateStackDialog({
                 {isLoading && (
                   <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
                 )}
-                Create Stack
+                {stack ? 'Update Stack' : 'Create Stack'}
               </Button>
             </DialogFooter>
           </form>

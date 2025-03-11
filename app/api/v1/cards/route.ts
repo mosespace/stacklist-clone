@@ -1,70 +1,123 @@
+import { authOptions } from '@/lib/auth';
 import { db } from '@/lib/db';
+import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
   try {
-    const userId = req.headers.get('x-user-id');
+    const session = await getServerSession(authOptions);
 
-    if (!userId) {
-      return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      });
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = await req.json();
-    const { name, price, link, notes, imageUrl, stackId } = body;
+    const {
+      title,
+      url,
+      notes,
+      imageUrl,
+      showImage,
+      price,
+      aspectRatio,
+      stackId,
+    } = await req.json();
 
-    if (!name || !price || !link || !stackId) {
-      return new NextResponse(
-        JSON.stringify({
-          error: 'Name, price, link, and stackId are required',
-        }),
-        {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' },
-        },
-      );
-    }
+    // console.log('Title ✅:', title);
+    // console.log('URL ✅:', url);
+    // console.log('Notes ✅:', notes);
+    // console.log('ImageURL ✅:', imageUrl);
+    // console.log('showImage ✅:', showImage);
+    // console.log('price ✅:', price);
+    // console.log('aspectRatio ✅:', aspectRatio);
+    // console.log('stackId ✅:', stackId);
 
-    // Verify the stack belongs to the user
-    const stack = await db.stack.findUnique({
-      where: {
-        id: stackId,
-      },
+    // Get user ID from email
+    const user = await db.user.findUnique({
+      where: { email: session?.user.email },
     });
 
-    if (!stack || stack.userId !== userId) {
-      return new NextResponse(
-        JSON.stringify({ error: 'Stack not found or not owned by the user' }),
-        {
-          status: 404,
-          headers: { 'Content-Type': 'application/json' },
-        },
-      );
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const productCard = await db.productCard.create({
+    // Validate stack belongs to user
+    if (stackId) {
+      const stack = await db.stack.findUnique({
+        where: { id: stackId },
+      });
+
+      if (!stack || stack.userId !== user.id) {
+        if (!user.id) {
+          return NextResponse.json(
+            { error: 'Stack not found or unauthorized' },
+            { status: 404 },
+          );
+        }
+      }
+    }
+
+    // Create product card
+    const card = await db.productCard.create({
       data: {
-        name,
-        price: parseFloat(price.toString()),
-        link,
+        name: title,
+        price: parseFloat(price) || 0,
+        link: url,
         notes,
         imageUrl,
-        userId,
-        stackId,
+        aspectRatio: aspectRatio?.toString(),
+        showImage,
+        userId: user?.id,
+        ...(stackId ? { stackId } : {}),
       },
     });
 
-    return NextResponse.json(productCard);
+    return NextResponse.json(card);
   } catch (error) {
-    console.error('CREATE_CARD_ERROR', error);
-    return new NextResponse(
-      JSON.stringify({ error: 'Internal server error' }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
+    console.error('Error creating card:', error);
+    return NextResponse.json(
+      { error: 'Failed to create card' },
+      { status: 500 },
+    );
+  }
+}
+
+export async function GET(req: Request) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const url = new URL(req.url);
+    const stackId = url.searchParams.get('stackId');
+
+    // Get user ID from email
+    const user = await db.user.findUnique({
+      where: { email: session.user.email },
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // Get cards
+    const cards = await db.productCard.findMany({
+      where: {
+        userId: user.id,
+        ...(stackId ? { stackId } : {}),
       },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return NextResponse.json(cards);
+  } catch (error) {
+    console.error('Error fetching cards:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch cards' },
+      { status: 500 },
     );
   }
 }

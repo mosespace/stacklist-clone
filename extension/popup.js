@@ -117,12 +117,15 @@ function captureProductInfo() {
 
       try {
         // Call your metadata API
-        const response = await fetch('http://localhost:3000/api/metadata', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url }),
-          credentials: 'include', // Important for passing cookies
-        });
+        const response = await fetch(
+          'https://stacklist-clone.vercel.app/api/metadata',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url }),
+            credentials: 'include', // Important for passing cookies
+          },
+        );
 
         if (!response.ok) {
           throw new Error('Failed to fetch metadata');
@@ -288,7 +291,7 @@ function extractProductInfo() {
 
 // Update sendToAPI function to include notes in the data
 async function sendToAPI(data) {
-  const baseUrl = 'http://localhost:3000';
+  const baseUrl = 'https://stacklist-clone.vercel.app';
   const apiUrl = `${baseUrl}/api/cards`;
 
   try {
@@ -342,7 +345,7 @@ async function signInWithCredentials(email, password) {
     }
 
     // Step 1: Get the CSRF token from the signin page
-    const baseUrl = 'http://localhost:3000';
+    const baseUrl = 'https://stacklist-clone.vercel.app';
     const csrfResponse = await fetch(`${baseUrl}/api/auth/csrf`);
     const { csrfToken } = await csrfResponse.json();
 
@@ -364,7 +367,7 @@ async function signInWithCredentials(email, password) {
           email,
           password,
           redirect: 'false',
-          callbackUrl: `${baseUrl}/dashboard`,
+          // callbackUrl: `${baseUrl}/dashboard`,
           json: 'true',
         }),
         credentials: 'include',
@@ -425,7 +428,7 @@ async function signInWithCredentials(email, password) {
 
 // Initiate Google Sign-In process
 function initiateGoogleSignIn() {
-  const baseUrl = 'http://localhost:3000';
+  const baseUrl = 'https://stacklist-clone.vercel.app';
 
   // Create and open a new window to handle authentication
   chrome.windows.create(
@@ -469,7 +472,7 @@ function initiateGoogleSignIn() {
 
 // Check if user is authenticated
 async function checkAuthStatus() {
-  const baseUrl = 'http://localhost:3000';
+  const baseUrl = 'https://stacklist-clone.vercel.app';
 
   try {
     const response = await fetch(`${baseUrl}/api/auth/session`, {
@@ -504,7 +507,7 @@ async function checkAuthStatus() {
 
 // Sign out function
 async function signOut() {
-  const baseUrl = 'http://localhost:3000';
+  const baseUrl = 'https://stacklist-clone.vercel.app';
 
   try {
     // Call NextAuth signout endpoint

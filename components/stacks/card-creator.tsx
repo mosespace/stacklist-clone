@@ -74,10 +74,12 @@ export function CardCreatorDialog({
     showImage: showImage,
   });
 
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
+
   const fetchMetadata = async (url: string) => {
     try {
       setLoading(true);
-      const response = await fetch('/api/metadata', {
+      const response = await fetch(`${baseUrl}/api/v1/metadata`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url }),
@@ -124,9 +126,8 @@ export function CardCreatorDialog({
 
   const handleSave = async () => {
     try {
-      // console.log('Card Data ✅;', cardData);
       setLoading(true);
-      const response = await fetch('/api/cards', {
+      const response = await fetch(`${baseUrl}/api/v1/cards`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

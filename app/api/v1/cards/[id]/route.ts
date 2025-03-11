@@ -1,209 +1,106 @@
-import { NextResponse } from 'next/server';
+import { authOptions } from '@/lib/auth';
 import { db } from '@/lib/db';
+import { getServerSession } from 'next-auth';
+import { NextResponse } from 'next/server';
 
 type Params = Promise<{ id: string }>;
 
-export async function GET(req: Request, { params }: { params: Params }) {
+export async function DELETE(request: Request, { params }: { params: Params }) {
   const { id } = await params;
   try {
-    const userId = req.headers.get('x-user-id');
+    const session = await getServerSession(authOptions);
 
-    if (!userId) {
-      return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      });
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (!id) {
-      return new NextResponse(
-        JSON.stringify({ error: 'Card ID is required' }),
-        {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' },
-        },
-      );
-    }
-
-    const productCard = await db.productCard.findUnique({
-      where: {
-        id: id,
-      },
-      include: {
-        stack: true,
-      },
+    // Get user ID from email
+    const user = await db.user.findUnique({
+      where: { email: session.user.email },
     });
 
-    if (
-      !productCard ||
-      productCard.userId !== userId
-      // (productCard.userId !== userId && !productCard.stack.isPublic)
-    ) {
-      return new NextResponse(
-        JSON.stringify({ error: 'Not found or unauthorized' }),
-        {
-          status: 404,
-          headers: { 'Content-Type': 'application/json' },
-        },
-      );
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    return NextResponse.json(productCard);
-  } catch (error) {
-    console.error('CARD_GET_ERROR', error);
-    return new NextResponse(
-      JSON.stringify({ error: 'Internal server error' }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      },
-    );
-  }
-}
-
-export async function PUT(req: Request, { params }: { params: Params }) {
-  const { id } = await params;
-  try {
-    const userId = req.headers.get('x-user-id');
-
-    if (!userId) {
-      return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
-    if (!id) {
-      return new NextResponse(
-        JSON.stringify({ error: 'Card ID is required' }),
-        {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' },
-        },
-      );
-    }
-
-    const productCard = await db.productCard.findUnique({
-      where: {
-        id: id,
-      },
+    // Check if card exists and belongs to user
+    const card = await db.productCard.findUnique({
+      where: { id },
     });
 
-    if (!productCard || productCard.userId !== userId) {
-      return new NextResponse(
-        JSON.stringify({ error: 'Not found or unauthorized' }),
-        {
-          status: 404,
-          headers: { 'Content-Type': 'application/json' },
-        },
+    if (!card || card.userId !== user.id) {
+      return NextResponse.json(
+        { error: 'Card not found or unauthorized' },
+        { status: 404 },
       );
     }
 
-    const body = await req.json();
-    const { name, price, link, notes, imageUrl, stackId } = body;
-
-    // If stack ID is changing, verify ownership of the new stack
-    if (stackId && stackId !== productCard.stackId) {
-      const stack = await db.stack.findUnique({
-        where: {
-          id: stackId,
-        },
-      });
-
-      if (!stack || stack.userId !== userId) {
-        return new NextResponse(
-          JSON.stringify({
-            error: 'New stack not found or not owned by the user',
-          }),
-          {
-            status: 404,
-            headers: { 'Content-Type': 'application/json' },
-          },
-        );
-      }
-    }
-
-    const updatedProductCard = await db.productCard.update({
-      where: {
-        id: id,
-      },
-      data: {
-        name: name ?? productCard.name,
-        price: price ? parseFloat(price.toString()) : productCard.price,
-        link: link ?? productCard.link,
-        notes: notes ?? productCard.notes,
-        imageUrl: imageUrl ?? productCard.imageUrl,
-        stackId: stackId ?? productCard.stackId,
-      },
-    });
-
-    return NextResponse.json(updatedProductCard);
-  } catch (error) {
-    console.error('CARD_UPDATE_ERROR', error);
-    return new NextResponse(
-      JSON.stringify({ error: 'Internal server error' }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      },
-    );
-  }
-}
-
-export async function DELETE(req: Request, { params }: { params: Params }) {
-  const { id } = await params;
-
-  try {
-    const userId = req.headers.get('x-user-id');
-
-    if (!userId) {
-      return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
-    if (!id) {
-      return new NextResponse(
-        JSON.stringify({ error: 'Card ID is required' }),
-        {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' },
-        },
-      );
-    }
-
-    const productCard = await db.productCard.findUnique({
-      where: {
-        id: id,
-      },
-    });
-
-    if (!productCard || productCard.userId !== userId) {
-      return new NextResponse(
-        JSON.stringify({ error: 'Not found or unauthorized' }),
-        {
-          status: 404,
-          headers: { 'Content-Type': 'application/json' },
-        },
-      );
-    }
-
+    // Delete card
     await db.productCard.delete({
-      where: {
-        id: id,
-      },
+      where: { id },
     });
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('CARD_DELETE_ERROR', error);
-    return new NextResponse(
-      JSON.stringify({ error: 'Internal server error' }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
+    console.error('Error deleting card:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete card' },
+      { status: 500 },
+    );
+  }
+}
+
+export async function PATCH(req: Request, { params }: { params: Params }) {
+  const { id } = await params;
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { name, price, link, notes, imageUrl, stackId } = await req.json();
+
+    // Get user ID from email
+    const user = await db.user.findUnique({
+      where: { email: session.user.email },
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // Check if card exists and belongs to user
+    const card = await db.productCard.findUnique({
+      where: { id },
+    });
+
+    if (!card || card.userId !== user.id) {
+      return NextResponse.json(
+        { error: 'Card not found or unauthorized' },
+        { status: 404 },
+      );
+    }
+
+    // Update card
+    const updatedCard = await db.productCard.update({
+      where: { id },
+      data: {
+        name,
+        price,
+        link,
+        notes,
+        imageUrl,
+        stackId,
       },
+    });
+
+    return NextResponse.json(updatedCard);
+  } catch (error) {
+    console.error('Error updating card:', error);
+    return NextResponse.json(
+      { error: 'Failed to update card' },
+      { status: 500 },
     );
   }
 }

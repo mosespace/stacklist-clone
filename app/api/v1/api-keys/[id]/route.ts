@@ -1,19 +1,20 @@
-import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { verifyApiKey } from '@/actions/verify-api-key';
 import { db } from '@/lib/db';
+import { NextResponse } from 'next/server';
 type Params = Promise<{ id: string }>;
 
 export async function DELETE(request: Request, { params }: { params: Params }) {
   const { id } = await params;
 
   try {
-    const session = await getServerSession(authOptions);
+    const verificationResult = await verifyApiKey();
 
-    if (!session?.user) {
-      return new NextResponse('Unauthorized', { status: 401 });
+    if (!verificationResult.success) {
+      return Response.json(
+        { error: verificationResult.message },
+        { status: 401 },
+      );
     }
-
     if (!id) {
       return new NextResponse('API Key ID is required', { status: 400 });
     }
@@ -24,7 +25,7 @@ export async function DELETE(request: Request, { params }: { params: Params }) {
       },
     });
 
-    if (!apiKey || apiKey.userId !== session.user.id) {
+    if (!apiKey || apiKey.userId !== verificationResult?.userId) {
       return new NextResponse('Not found or unauthorized', { status: 404 });
     }
 

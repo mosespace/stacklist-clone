@@ -19,6 +19,14 @@ export async function getCurrentUser() {
       email: true,
       image: true,
       role: true,
+      apiKey: true,
+      apiKeys: {
+        select: {
+          id: true,
+          key: true,
+          name: true,
+        },
+      },
     },
   });
 

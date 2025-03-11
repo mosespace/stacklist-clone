@@ -1,22 +1,29 @@
+import { verifyApiKey } from '@/actions/verify-api-key';
 import { db } from '@/lib/db';
+import { generateSlug } from '@/lib/generate-slug';
 import { NextResponse } from 'next/server';
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
-    const userId = req.headers.get('x-user-id');
+    const verificationResult = await verifyApiKey();
 
-    if (!userId) {
-      return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      });
+    if (!verificationResult.success) {
+      return Response.json(
+        { error: verificationResult.message },
+        { status: 401 },
+      );
     }
-
-    const stacks = await db.stack.findMany({
+    const publicStacks = await db.stack.findMany({
       where: {
-        userId,
+        isPublic: true,
       },
       include: {
+        user: {
+          select: {
+            name: true,
+            image: true,
+          },
+        },
         _count: {
           select: {
             productCards: true,
@@ -28,45 +35,58 @@ export async function GET(req: Request) {
       },
     });
 
-    return NextResponse.json(stacks);
+    return NextResponse.json(publicStacks);
   } catch (error) {
-    console.error('STACKS_ERROR', error);
-    return new NextResponse(
-      JSON.stringify({ error: 'Internal server error' }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      },
-    );
+    console.error('PUBLIC_STACKS_ERROR', error);
+    return new NextResponse('Internal Error', { status: 500 });
   }
 }
 
 export async function POST(req: Request) {
   try {
     const userId = req.headers.get('x-user-id');
-    console.log('UserID ✅', userId);
 
     if (!userId) {
-      return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), {
+      return new NextResponse(JSON.stringify({ message: 'Unauthorized' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
     const body = await req.json();
-    const { name, slug, description, isPublic } = body;
+    const { name, description, isPublic } = body;
+
+    const formattedSlug = generateSlug(name);
 
     if (!name) {
-      return new NextResponse(JSON.stringify({ error: 'Name is required' }), {
+      return new NextResponse(JSON.stringify({ message: 'Name is required' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
+    const existingStack = await db.stack.findFirst({
+      where: {
+        slug: formattedSlug,
+      },
+    });
+
+    if (existingStack) {
+      return new NextResponse(
+        JSON.stringify({ message: 'Stack with this slug already exists' }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        },
+      );
+    }
+
+    // console.log(name, slug, description, isPublic, userId);
+
     const stack = await db.stack.create({
       data: {
         name,
-        slug,
+        slug: formattedSlug,
         description,
         isPublic: isPublic ?? false,
         userId,
@@ -81,7 +101,7 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error('CREATE_STACK_ERROR', error);
     return new NextResponse(
-      JSON.stringify({ error: 'Internal server error' }),
+      JSON.stringify({ message: 'Internal server error' }),
       {
         status: 500,
         headers: { 'Content-Type': 'application/json' },

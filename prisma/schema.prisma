@@ -26,7 +26,8 @@ model User {
   passwordHash         String?
   invalidLoginAttempts Int       @default(0)
   role                 UserRole  @default(USER)
-
+  apiKey               String?
+  
   // System
   lockedAt  DateTime?
   createdAt DateTime  @default(now())
@@ -88,7 +89,7 @@ model VerificationToken {
 model ApiKey {
   id        String   @id @default(cuid())
   key       String   @unique
-  name      String
+  name      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   userId    String
