@@ -124,7 +124,7 @@ export function CardCreatorDialog({
 
   const handleSave = async () => {
     try {
-      console.log('Card Data ✅;', cardData);
+      // console.log('Card Data ✅;', cardData);
       setLoading(true);
       const response = await fetch('/api/cards', {
         method: 'POST',

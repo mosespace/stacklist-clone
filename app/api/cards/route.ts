@@ -22,6 +22,15 @@ export async function POST(req: Request) {
       stackId,
     } = await req.json();
 
+    // console.log('Title ✅:', title);
+    // console.log('URL ✅:', url);
+    // console.log('Notes ✅:', notes);
+    // console.log('ImageURL ✅:', imageUrl);
+    // console.log('showImage ✅:', showImage);
+    // console.log('price ✅:', price);
+    // console.log('aspectRatio ✅:', aspectRatio);
+    // console.log('stackId ✅:', stackId);
+
     // Get user ID from email
     const user = await db.user.findUnique({
       where: { email: session?.user.email },
@@ -51,11 +60,11 @@ export async function POST(req: Request) {
     const card = await db.productCard.create({
       data: {
         name: title,
-        price: price || 0,
+        price: parseFloat(price) || 0,
         link: url,
         notes,
         imageUrl,
-        aspectRatio,
+        aspectRatio: aspectRatio?.toString(),
         showImage,
         userId: user?.id,
         ...(stackId ? { stackId } : {}),

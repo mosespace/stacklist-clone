@@ -195,3 +195,115 @@ input[type='text'][readonly] {
   pointer-events: none;
   position: absolute;
 }
+
+/* Add these styles to your existing CSS file */
+
+.error-text {
+  color: #e74c3c;
+  font-size: 14px;
+  margin-top: 8px;
+  min-height: 20px;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+  text-align: center;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.auth-divider span {
+  padding: 0 10px;
+  color: #777;
+  font-size: 14px;
+}
+
+.social-signin {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 20px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+
+.google-btn:hover {
+  background-color: #f8f8f8;
+  border-color: #ccc;
+}
+
+.google-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.auth-footer {
+  margin-top: 15px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.auth-footer a {
+  color: #4285f4;
+  text-decoration: none;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+}
+
+.image-selection-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+
+textarea {
+  resize: vertical;
+  width: 100%;
+  min-height: 80px;
+}
+
+.thumbnail {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.thumbnail.selected {
+  border-color: #3b82f6;
+}
+
+#image-preview {
+  max-width: 100%;
+  max-height: 200px;
+  margin-top: 10px;
+}
+
+#loading-indicator {
+  margin: 10px 0;
+  color: #6b7280;
+}
