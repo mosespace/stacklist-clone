@@ -118,7 +118,7 @@ function captureProductInfo() {
       try {
         // Call your metadata API
         const response = await fetch(
-          'https://stacklist-clone.vercel.app/api/metadata',
+          'https://stacklist-clone.vercel.app/api/v1/metadata',
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -292,7 +292,7 @@ function extractProductInfo() {
 // Update sendToAPI function to include notes in the data
 async function sendToAPI(data) {
   const baseUrl = 'https://stacklist-clone.vercel.app';
-  const apiUrl = `${baseUrl}/api/cards`;
+  const apiUrl = `${baseUrl}/api/v1/cards`;
 
   try {
     // First check if the user is still authenticated
