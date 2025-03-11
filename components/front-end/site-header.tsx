@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { getCurrentUser } from '@/lib/session';
 import { MainNav } from '../layout/main-nav';
 import { UserNav } from '../layout/user-nav';
+import Image from 'next/image';
 
 export async function SiteHeader() {
   const user = await getCurrentUser();
@@ -13,7 +14,13 @@ export async function SiteHeader() {
       <div className="container mx-auto max-w-6xl w-full flex h-14 max-w-screen-2xls items-center">
         {/* Logo container */}
         <div className="flex items-center">
-          <img src="/logo.svg" className="w-8 h-8" alt="" />
+          <Image
+            src="/logo.svg"
+            width={400}
+            height={400}
+            className="w-8 h-8"
+            alt=""
+          />
           <h2 className="font-bold text-2xl mr-8">StackList</h2>
         </div>
         {user ? (
