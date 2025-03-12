@@ -2,7 +2,7 @@
 import ResetPasswordEmail from '@/components/emails/reset-password';
 import { db } from '@/lib/db';
 import { generateToken } from '@/lib/generate-token';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
