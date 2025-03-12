@@ -1,4 +1,3 @@
-import { verifyApiKey } from '@/actions/verify-api-key';
 import { db } from '@/lib/db';
 import { generateSlug } from '@/lib/generate-slug';
 import { NextResponse } from 'next/server';
