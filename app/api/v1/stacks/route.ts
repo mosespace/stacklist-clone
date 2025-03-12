@@ -5,14 +5,14 @@ import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    const verificationResult = await verifyApiKey();
+    // const verificationResult = await verifyApiKey();
 
-    if (!verificationResult.success) {
-      return Response.json(
-        { error: verificationResult.message },
-        { status: 401 },
-      );
-    }
+    // if (!verificationResult.success) {
+    //   return Response.json(
+    //     { error: verificationResult.message },
+    //     { status: 401 },
+    //   );
+    // }
     const publicStacks = await db.stack.findMany({
       where: {
         isPublic: true,
