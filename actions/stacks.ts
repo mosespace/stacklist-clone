@@ -57,15 +57,16 @@ export async function getUserStacks() {
   }
 }
 
-export async function createStack(apiKey: string, data: any) {
-  console.log(data);
+export async function createStack(userId: string, data: any) {
+  // console.log(data);
 
   try {
     const response = await fetch(`${baseUrl}/api/v1/stacks`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
+        // 'x-api-key': apiKey,
+        'x-user-id': userId,
       },
       body: JSON.stringify(data),
     });

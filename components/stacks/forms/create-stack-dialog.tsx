@@ -67,6 +67,7 @@ export function CreateStackDialog({
 
     try {
       const apiKey = user?.apiKeys[0].key;
+      const userId = user?.id;
 
       let response;
 
@@ -82,7 +83,7 @@ export function CreateStackDialog({
         }
       } else {
         // Create new stack
-        response = await createStack(apiKey, data);
+        response = await createStack(userId, data);
 
         if (response.status === 201) {
           toast.success('Stack created!', response.message);
