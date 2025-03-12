@@ -32,7 +32,9 @@ export function CardGrid({ stackId, onEdit }: CardGridProps) {
     const fetchCards = async () => {
       try {
         setLoading(true);
-        const url = stackId ? `/api/cards?stackId=${stackId}` : '/api/cards';
+        const url = stackId
+          ? `/api/v1/cards?stackId=${stackId}`
+          : '/api/v1/cards';
 
         const response = await fetch(url);
 
@@ -58,7 +60,7 @@ export function CardGrid({ stackId, onEdit }: CardGridProps) {
 
   const handleDelete = async (id: string) => {
     try {
-      const response = await fetch(`/api/cards/${id}`, {
+      const response = await fetch(`/api/v1/cards/${id}`, {
         method: 'DELETE',
       });
 

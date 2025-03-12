@@ -195,7 +195,7 @@ export function ApiKeyUsage() {
 
 const jsProductsExample = `// Fetch all products
 const fetchProducts = async () => {
-  const response = await fetch('https://your-domain.com/api/cards', {
+  const response = await fetch('https://stacklist-clone.vercel.app/api/v1/cards', {
     method: 'GET',
     headers: {
       'Authorization': 'ApiKey YOUR_API_KEY',
@@ -209,7 +209,7 @@ const fetchProducts = async () => {
 
 const jsCreateExample = `// Create a new product
 const createProduct = async (productData) => {
-  const response = await fetch('https://your-domain.com/api/cards', {
+  const response = await fetch('https://stacklist-clone.vercel.app/api/v1/cards', {
     method: 'POST',
     headers: {
       'Authorization': 'ApiKey YOUR_API_KEY',
@@ -233,7 +233,7 @@ const pythonProductsExample = `import requests
 
 # Fetch all products
 def fetch_products():
-    url = "https://your-domain.com/api/cards"
+    url = "https://stacklist-clone.vercel.app/api/v1/cards"
     headers = {
         "Authorization": "ApiKey YOUR_API_KEY",
         "Content-Type": "application/json"
@@ -246,7 +246,7 @@ const pythonCreateExample = `import requests
 
 # Create a new product
 def create_product():
-    url = "https://your-domain.com/api/cards"
+    url = "https://stacklist-clone.vercel.app/api/v1/cards"
     headers = {
         "Authorization": "ApiKey YOUR_API_KEY",
         "Content-Type": "application/json"
@@ -266,13 +266,13 @@ def create_product():
 
 const curlProductsExample = `# Fetch all products
 curl -X GET \\
-  https://your-domain.com/api/cards \\
+  https://stacklist-clone.vercel.app/api/v1/cards \\
   -H 'Authorization: ApiKey YOUR_API_KEY' \\
   -H 'Content-Type: application/json'`;
 
 const curlCreateExample = `# Create a new product
 curl -X POST \\
-  https://your-domain.com/api/cards \\
+  https://stacklist-clone.vercel.app/api/v1/cards \\
   -H 'Authorization: ApiKey YOUR_API_KEY' \\
   -H 'Content-Type: application/json' \\
   -d '{
