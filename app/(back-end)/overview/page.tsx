@@ -1,16 +1,12 @@
-import { redirect } from 'next/navigation';
-import { getCurrentUser } from '@/lib/session';
-import { StacksOverview } from '@/components/stacks/stacks-overview';
 import { getStacks } from '@/actions/stacks';
+import { StacksOverview } from '@/components/stacks/stacks-overview';
+import { getCurrentUser } from '@/lib/session';
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
   const apiKey = user?.apiKeys[0].key;
   const stacksData = await getStacks(apiKey as string);
 
-  if (!user) {
-    redirect('/login');
-  }
   // console.log('User:', user);
 
   return (
