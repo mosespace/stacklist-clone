@@ -367,7 +367,7 @@ async function signInWithCredentials(email, password) {
           email,
           password,
           redirect: 'false',
-          // callbackUrl: `${baseUrl}/dashboard`,
+          callbackUrl: `${baseUrl}/overview`,
           json: 'true',
         }),
         credentials: 'include',

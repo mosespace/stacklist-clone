@@ -1,9 +1,6 @@
-import Link from 'next/link';
 import { User } from '@prisma/client';
 import { Package2 } from 'lucide-react';
-import { MobileNav } from '../layout/mobile-nav';
-// import { MobileNav } from "@/components/dashboard/mobile-nav";
-// import { UserAccountNav } from "@/components/user-account-nav";
+import Link from 'next/link';
 
 interface DashboardHeaderProps {
   user: Pick<User, 'name' | 'image' | 'email' | 'role'>;

@@ -44,7 +44,7 @@ export function StacksOverview({ user, stacks }: { user: any; stacks: any }) {
       setIsLoading(true);
       try {
         // In a real app, this would be an API call
-        // await fetch('/api/dashboard/stats')
+        // await fetch('/api/overview/stats')
 
         // Simulating API response
         setTimeout(() => {
@@ -175,7 +175,7 @@ export function StacksOverview({ user, stacks }: { user: any; stacks: any }) {
                     </div>
                     <div className="flex items-center">
                       <Button variant="ghost" size="sm" asChild>
-                        <Link href="/dashboard/stacks/1">
+                        <Link href="/overview/stacks/1">
                           <ExternalLink className="mr-2 h-4 w-4" />
                           View
                         </Link>
@@ -198,7 +198,7 @@ export function StacksOverview({ user, stacks }: { user: any; stacks: any }) {
                     </div>
                     <div className="flex items-center">
                       <Button variant="ghost" size="sm" asChild>
-                        <Link href="/dashboard/stacks/2">
+                        <Link href="/overview/stacks/2">
                           <ExternalLink className="mr-2 h-4 w-4" />
                           View
                         </Link>
@@ -221,7 +221,7 @@ export function StacksOverview({ user, stacks }: { user: any; stacks: any }) {
                     </div>
                     <div className="flex items-center">
                       <Button variant="ghost" size="sm" asChild>
-                        <Link href="/dashboard/stacks/3">
+                        <Link href="/overview/stacks/3">
                           <ExternalLink className="mr-2 h-4 w-4" />
                           View
                         </Link>
@@ -234,7 +234,7 @@ export function StacksOverview({ user, stacks }: { user: any; stacks: any }) {
           </CardContent>
           <CardFooter>
             <Button variant="outline" size="sm" className="w-full" asChild>
-              <Link href="/dashboard/stacks">View All Stacks</Link>
+              <Link href="/overview/stacks">View All Stacks</Link>
             </Button>
           </CardFooter>
         </Card>
@@ -256,12 +256,12 @@ export function StacksOverview({ user, stacks }: { user: any; stacks: any }) {
               </Link>
             </Button>
             <Button variant="outline" className="w-full justify-start" asChild>
-              <Link href="/dashboard/api-keys">
+              <Link href="/overview/api-keys">
                 <Key className="mr-2 h-4 w-4" /> Manage API Keys
               </Link>
             </Button>
             <Button variant="outline" className="w-full justify-start" asChild>
-              <Link href="/dashboard/settings">
+              <Link href="/overview/settings">
                 <Settings className="mr-2 h-4 w-4" /> Account Settings
               </Link>
             </Button>
